@@ -63,3 +63,64 @@ end
   <%= @counter.value %>
 </div>
 ```
+
+Alternatively, you can pass a `path` instead of `partial`:
+
+```ruby
+# app/controllers/counters_controller.rb
+def show
+  @counter = Counter.find(params[:id])
+end
+
+def increase
+  @counter = Counter.find(params[:id])
+  @counter.value += 1
+  @counter.save
+  turbobus [:counters, @counter], path: 'counters/value'
+  head :accepted
+end
+
+def value
+  @counter = Counter.find(params[:id])
+  render partial: 'counters/content'
+end
+
+# app/views/counters/show.html.erb
+<%= render partial: "counters/content" %>
+<%= link_to "Increase counter", increase_counter_path(@counter), remote: true %>
+
+# app/views/counters/_content.html.erb
+<div id="<%= turbobus_id_for({ channel: [:counters, @counter] })">
+  <%= @counter.value %>
+</div>
+```
+
+*Note: don't forget to add the `counters#likes` route in your routes file.*
+
+
+Also you can pass an extra option `id` to `turbobus_id_for` helper in order to define multiple
+synchronized HTML DOM nodes using the same Turbobus channel:
+
+```ruby
+# app/controllers/counters_controller.rb
+def increase
+  @counter = Counter.find(params[:id])
+  @counter.value += 1
+  @counter.save
+  turbobus [:counters, @counter], partial: 'counters/contents'
+  head :accepted
+end
+
+# app/views/counters/_contents.html.erb
+<%= render partial: "counters/content", locals: { sequence_number: 1 } %>
+<%= render partial: "counters/content", locals: { sequence_number: 2 } %>
+
+# app/views/counters/_content.html.erb
+<div id="<%= turbobus_id_for({ channel: [:counters, @counter], id: sequence_number })">
+  <%= @counter.value %>
+</div>
+
+# app/views/counters/show.html.erb
+<%= render partial: "counters/contents" %>
+<%= link_to "Increase counter", increase_counter_path(@counter), remote: true %>
+```
