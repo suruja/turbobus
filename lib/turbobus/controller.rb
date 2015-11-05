@@ -4,12 +4,13 @@ module Turbobus
       base.send(:helper_method, :turbobus)
     end
 
-    def turbobus(channel, opts)
-      key = [channel].flatten.compact.map(&:to_param).join(':')
-      MessageBus.publish "/#{key}", {
-        partial: render_to_string(opts),
-        change: key
-      }
+    def turbobus(opts={})
+      channel = Turbobus::Helpers.channelize(opts[:channel])
+      MessageBus.publish "/#{channel}", { change: channel }.merge(
+        opts[:path] ?
+        { path: opts[:path] } :
+        { partial: render_to_string(partial: opts[:partial]) }
+      )
     end
   end
 end

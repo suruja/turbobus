@@ -1,10 +1,11 @@
+require 'message_bus'
 require 'turbobus/version'
 require 'turbobus/controller'
+require 'turbobus/helpers'
 
 module Turbobus
   module Rails
     class Engine < ::Rails::Engine
-      require 'message_bus'
     end
   end
 end
