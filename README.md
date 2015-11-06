@@ -64,7 +64,7 @@ end
 </div>
 ```
 
-Alternatively, you can pass a `path` instead of `partial`:
+The partial Turbobus send with `turbobus` method is the same for every clients. However if your partial needs to be evaluated on runtime for each specific user, you can pass a `path` instead of `partial` to force reloading the partial in context of the current user:
 
 ```ruby
 # app/controllers/counters_controller.rb
